@@ -11,7 +11,10 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration 配置进
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist 不需要跳转的白名单
 
 router.beforeEach(async(to, from, next) => {
-  // start progress bar
+  console.log('to：' + to)
+  console.log('from：' + from)
+  console.log('next：' + next)
+  // start progress bar 启动进度条
   NProgress.start()
 
   // set page title
@@ -69,6 +72,6 @@ router.beforeEach(async(to, from, next) => {
 })
 
 router.afterEach(() => {
-  // finish progress bar
+  // finish progress bar 完成进度条
   NProgress.done()
 })
