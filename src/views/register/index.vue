@@ -76,6 +76,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { checkUsername, register } from '@/api/register'
 
 export default {
   name: 'Register',
@@ -83,6 +84,13 @@ export default {
     const validateUsername = async(rule, value, callback) => {
       if (!validUsername(value)) {
         callback(new Error('用户名必须以字母开头，且与字母、数字、"."、"_"、和"@"构成'))
+      } else if (value) {
+        await checkUsername(value)
+          .then(response => {
+            if (response.code !== 0) {
+              callback(new Error('该用户名已被注册'))
+            }
+          })
       } else {
         callback()
       }
@@ -162,10 +170,25 @@ export default {
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/register', this.registerForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+          register(this.registerForm)
+            .then(response => {
               this.loading = false
+              if (response.code === 0) {
+                this.$message({
+                  message: response.message,
+                  type: 'success',
+                  duration: 5 * 1000
+                })
+                setTimeout(() => {
+                  this.$router.push({ path: '/login' })
+                }, 5000)
+              } else {
+                this.$message({
+                  message: response.message || 'Error',
+                  type: 'warning',
+                  duration: 5 * 1000
+                })
+              }
             })
             .catch(() => {
               this.loading = false
