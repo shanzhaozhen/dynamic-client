@@ -175,7 +175,7 @@ export default {
               this.loading = false
               if (response.code === 0) {
                 this.$message({
-                  message: response.message,
+                  message: '注册成功！将在5s后跳转到登陆页',
                   type: 'success',
                   duration: 5 * 1000
                 })

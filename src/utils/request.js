@@ -45,42 +45,49 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    const res = response.data
+    return response.data
+  },
+  error => {
+    console.log('err' + error) // for debug
 
-    // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000 && res.code >= 1000) {
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
-
-      // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+    if (error.response.status === 401) {
+      const res = error.response.data
+      /**
+       * (4010, "密码账号认证出错")
+       * (4011, "token签名异常")
+       * (4012, "token格式不正确")
+       * (4013, "token已过期")
+       * (4014, "不支持该token")
+       * (4015, "token参数异常")
+       * (4016, "token错误")
+       */
+      if (res.code >= 4011 && res.code <= 4016) {
         // to re-login
-        MessageBox.confirm('您已注销，可以取消以留在此页，或重新登录。', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
+        MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录。', 'Confirm logout', {
+          confirmButtonText: '重新登录',
+          cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })
         })
+      } else {
+        Message({
+          message: res.message,
+          type: 'error',
+          duration: 5 * 1000
+        })
+        return Promise.reject(error)
       }
-      return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      return res
+      Message({
+        message: error.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
     }
-  },
-  error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
   }
 )
 
