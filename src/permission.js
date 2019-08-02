@@ -11,9 +11,6 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration 配置进
 const whiteList = ['/login', '/register', '/auth-redirect'] // no redirect whitelist 不需要跳转的白名单
 
 router.beforeEach(async(to, from, next) => {
-  console.log('to：' + to)
-  console.log('from：' + from)
-  console.log('next：' + next)
   // start progress bar 启动进度条
   NProgress.start()
 
@@ -40,7 +37,7 @@ router.beforeEach(async(to, from, next) => {
           const { roles } = await store.dispatch('user/getInfo')
 
           // generate accessible routes map based on roles
-          const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
+          const accessRoutes = await store.dispatch('permission/generateRoutes', JSON.stringify(roles))
 
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)

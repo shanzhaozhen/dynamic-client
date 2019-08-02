@@ -1,10 +1,11 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
+import defaultAvatar from '@/assets/default-avatar.gif'
 
 const state = {
   token: getToken(),
-  name: '',
+  nickname: '',
   avatar: '',
   introduction: '',
   roles: []
@@ -17,8 +18,8 @@ const mutations = {
   SET_INTRODUCTION: (state, introduction) => {
     state.introduction = introduction
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  SET_NICKNAME: (state, nickname) => {
+    state.nickname = nickname
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -49,11 +50,11 @@ const actions = {
   getInfo({ commit }) {
     return new Promise((resolve, reject) => {
       getInfo().then(res => {
-        if (!res && res.code === 0) {
+        if (!res && res.code !== 0) {
           reject('验证失败，请重新登录。')
         }
 
-        const { roles, name, avatar, introduction } = res
+        const { roles, nickname, avatar, introduction } = res.data
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -61,10 +62,10 @@ const actions = {
         }
 
         commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+        commit('SET_NICKNAME', nickname)
+        commit('SET_AVATAR', avatar || defaultAvatar)
         commit('SET_INTRODUCTION', introduction)
-        resolve(res)
+        resolve(res.data)
       }).catch(error => {
         reject(error)
       })

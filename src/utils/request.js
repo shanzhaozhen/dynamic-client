@@ -63,7 +63,7 @@ service.interceptors.response.use(
        */
       if (res.code >= 4011 && res.code <= 4016) {
         // to re-login
-        MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录。', 'Confirm logout', {
+        MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录。', '登陆超时', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
           type: 'warning'
