@@ -10,8 +10,7 @@ const permissionRouter = {
   name: 'Permission',
   meta: {
     title: '权限控制',
-    icon: 'lock',
-    roles: ['admin', 'editor'] // you can set roles in root nav
+    icon: 'lock'
   },
   children: [
     {
@@ -19,8 +18,7 @@ const permissionRouter = {
       component: () => import('@/views/permission/page'),
       name: 'PagePermission',
       meta: {
-        title: '角色切换',
-        roles: ['admin'] // or you can only set roles in sub nav
+        title: '角色切换'
       }
     },
     {
@@ -29,7 +27,14 @@ const permissionRouter = {
       name: 'DirectivePermission',
       meta: {
         title: '权限指令'
-        // if do not set roles, means: this page does not require permission
+      }
+    },
+    {
+      path: 'resource',
+      component: () => import('@/views/permission/resource'),
+      name: 'menuPermission',
+      meta: {
+        title: '资源管理'
       }
     },
     {
@@ -37,8 +42,7 @@ const permissionRouter = {
       component: () => import('@/views/permission/role'),
       name: 'RolePermission',
       meta: {
-        title: '角色权限',
-        roles: ['admin']
+        title: '角色权限'
       }
     }
   ]

@@ -97,12 +97,12 @@ const actions = {
     })
   },
 
-  // dynamically modify permissions
+  // dynamically modify permissions todo:修改切换权限
   changeRoles({ commit, dispatch }, role) {
     return new Promise(async resolve => {
       const token = role + '-token'
 
-      commit('SET_TOKEN', token)
+      commit('SET_TOKEN', getToken())
       setToken(token)
 
       const { roles } = await dispatch('getInfo')
