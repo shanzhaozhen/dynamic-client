@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddResource">新建资源</el-button>
+    <el-button type="primary" @click="handleAdd">创建资源</el-button>
 
-    <el-table :data="resourceList" style="width: 100%;margin-top:30px;" row-key="id" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" border>
+    <el-table v-loading="listLoading" :data="resourceList" style="width: 100%;margin-top:30px;" row-key="id" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" border>
       <el-table-column align="center" label="id" width="60">
         <template slot-scope="scope">
           {{ scope.row.id }}
@@ -59,8 +59,8 @@
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑资源':'新建资源'">
-      <el-form :model="resource" label-width="85px" label-position="right">
-        <el-form-item label="名称">
+      <el-form ref="resourceForm" :model="resource" label-width="85px" label-position="right" :rules="rules">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="resource.name" placeholder="资源名称" />
         </el-form-item>
         <el-form-item label="路由">
@@ -135,20 +135,21 @@
           <el-input v-model="resource.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="资源描述" />
         </el-form-item>
         <el-form-item label="父子节点">
-          <el-cascader v-model="resource.pid" clearable :options="resourceList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" @change="handleChange" />
+          <el-cascader v-model="resource.pid" clearable :options="resourceList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
         <el-button type="danger" @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="confirmResource">确定</el-button>
+        <el-button :loading="loading" type="primary" @click="dialogType==='new'?createData():updateData()">确定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getResources } from '@/api/resource'
+import { getAllResourceTree, addResource, updateResource } from '@/api/resource'
 import { deepClone } from '@/utils'
+import { deleteResource } from '../../api/resource'
 
 const resourceTypeOptions = [
   { value: 0, name: '菜单' },
@@ -157,7 +158,7 @@ const resourceTypeOptions = [
 ]
 
 const defaultResource = {
-  id: '',
+  id: undefined,
   name: '',
   description: '',
   type: 0,
@@ -175,6 +176,8 @@ const defaultResource = {
 export default {
   data() {
     return {
+      listLoading: true,
+      loading: false,
       resource: Object.assign({}, defaultResource),
       resourceList: [],
       dialogVisible: false,
@@ -184,30 +187,108 @@ export default {
         children: 'children',
         label: 'name'
       },
+      rules: {
+        name: [
+          { required: true, message: '请输入资源名称', trigger: 'blur' }
+        ]
+      },
       resourceTypeOptions
     }
   },
   computed: {
   },
   created() {
-    this.getResources()
+    this.getAllResourceTree()
   },
   methods: {
-    async getResources() {
-      const res = await getResources()
+    async getAllResourceTree() {
+      this.listLoading = true
+      const res = await getAllResourceTree().catch(() => {
+        this.listLoading = false
+      })
       this.resourceList = res.data
+      this.listLoading = false
     },
-    handleAddResource() {
+    handleAdd() {
+      this.loading = false
       this.resource = Object.assign({}, defaultResource)
       this.dialogType = 'new'
       this.dialogVisible = true
     },
     handleEdit(scope) {
+      this.loading = false
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.resource = deepClone(scope.row)
     },
-    confirmResource() {
+    createData() {
+      this.$refs.resourceForm.validate(async valid => {
+        if (valid) {
+          this.loading = true
+          await addResource(this.resource).then(res => {
+            const { name, description } = this.resource
+            this.dialogVisible = false
+            this.$notify({
+              title: '添加成功',
+              dangerouslyUseHTMLString: true,
+              message: `
+                <div>名称: ${name}</div>
+                <div>描述: ${description}</div>
+              `,
+              type: 'success'
+            })
+            this.loading = false
+            this.getAllResourceTree()
+          }).catch(() => {
+            this.loading = false
+          })
+        }
+      })
+    },
+    updateData() {
+      this.$refs.resourceForm.validate(async valid => {
+        if (valid) {
+          this.loading = true
+          await updateResource(this.resource).then(res => {
+            console.log(res)
+            const { name, description } = this.resource
+            this.dialogVisible = false
+            this.$notify({
+              title: '修改成功',
+              dangerouslyUseHTMLString: true,
+              message: `
+                <div>名称: ${name}</div>
+                <div>描述: ${description}</div>
+              `,
+              type: 'success'
+            })
+            this.loading = false
+            this.getAllResourceTree()
+          }).catch(() => {
+            this.loading = false
+          })
+        }
+      })
+    },
+    async handleDelete({ row }) {
+      console.log(row)
+      this.$confirm('确定删除这个资源?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await deleteResource(row.id)
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.getAllResourceTree()
+      }).catch(() => {
+        this.$message({
+          type: 'warning',
+          message: '操作已取消!'
+        })
+      })
     }
   }
 }

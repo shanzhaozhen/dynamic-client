@@ -87,6 +87,7 @@ export default {
       } else if (value) {
         await checkUsername(value)
           .then(response => {
+            console.log(response)
             if (response.code !== 0) {
               callback(new Error('该用户名已被注册'))
             }

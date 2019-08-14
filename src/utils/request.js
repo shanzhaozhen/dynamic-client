@@ -33,23 +33,14 @@ service.interceptors.request.use(
 
 // response interceptor 响应拦截器
 service.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-  */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
   response => {
     return response.data
   },
   error => {
     console.log('err' + error) // for debug
-
-    if (error.response.status === 401) {
+    console.log(error.response)
+    const status = error.response.status
+    if (status === 401) {
       const res = error.response.data
       /**
        * (4010, "密码账号认证出错")
@@ -81,7 +72,7 @@ service.interceptors.response.use(
       }
     } else {
       Message({
-        message: error.message,
+        message: error.response.data.message || error.message,
         type: 'error',
         duration: 5 * 1000
       })
