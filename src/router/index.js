@@ -8,6 +8,7 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import permissionRouter from './modules/permissionRouter'
+import developerTool from './modules/developerTool'
 
 /**
  * constantRoutes
@@ -72,6 +73,7 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   permissionRouter,
+  developerTool,
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

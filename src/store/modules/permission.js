@@ -23,18 +23,18 @@ export function filterAndRenderingAsyncRoutes(routes, menus) {
 
   routes.forEach(route => {
     const tmpRoute = { ...route }
-    menus.forEach(tempMenu => {
-      if (filterAsyncRoutes(tempMenu, tmpRoute)) {
-        tmpRoute.hidden = tempMenu.hidden
-        tmpRoute.alwaysShow = tempMenu.alwaysShow
-        tmpRoute.meta.title = tempMenu.meta.title
-        tmpRoute.meta.icon = tempMenu.meta.icon
-        tmpRoute.meta.noCache = tempMenu.meta.noCache
-        tmpRoute.meta.affix = tempMenu.meta.affix
-        tmpRoute.meta.breadcrumb = tempMenu.meta.breadcrumb
-        tmpRoute.meta.roles = tempMenu.meta.roles
-        if (tmpRoute.children && tempMenu.children) {
-          tmpRoute.children = filterAndRenderingAsyncRoutes(tmpRoute.children, tempMenu.children)
+    menus.forEach(tmpMenu => {
+      if (filterAsyncRoutes(tmpMenu, tmpRoute)) {
+        tmpRoute.hidden = tmpMenu.hidden
+        tmpRoute.alwaysShow = tmpMenu.alwaysShow
+        tmpRoute.meta.title = tmpMenu.meta.title
+        tmpRoute.meta.icon = tmpMenu.meta.icon
+        tmpRoute.meta.noCache = tmpMenu.meta.noCache
+        tmpRoute.meta.affix = tmpMenu.meta.affix
+        tmpRoute.meta.breadcrumb = tmpMenu.meta.breadcrumb
+        tmpRoute.meta.roles = tmpMenu.meta.roles
+        if (tmpRoute.children && tmpMenu.children) {
+          tmpRoute.children = filterAndRenderingAsyncRoutes(tmpRoute.children, tmpMenu.children)
         }
         res.push(tmpRoute)
       }
