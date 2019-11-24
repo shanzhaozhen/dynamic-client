@@ -11,8 +11,9 @@ const developerTool = {
   },
   children: [
     {
-      path: 'druid?src=http://www.baidu.com',
+      path: 'druid',
       name: 'Druid',
+      props: { redirect: 'http://localhost:8080/dynamic/druid' },
       component: () => import('@/views/iframe/index'),
       meta: {
         title: 'Druid',
@@ -20,11 +21,12 @@ const developerTool = {
       }
     },
     {
-      path: 'swagger?src=http://localhost:8080/dynamic/swagger-ui.html',
+      path: 'swagger',
+      name: 'Swagger',
+      props: { redirect: 'http://localhost:8080/dynamic/swagger-ui.html' },
       component: () => import('@/views/iframe/index'),
-      name: '接口文档',
       meta: {
-        title: '接口文档',
+        title: 'Swagger',
         icon: 'link'
       }
     }

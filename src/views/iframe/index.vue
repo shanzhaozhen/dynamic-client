@@ -1,7 +1,6 @@
 <template>
   <div>
-    <iframe v-if="$route.query.src" ref="iframe" v-loading.fullscreen.lock="fullscreenLoading" :src="$route.query.src" class="iframe" />
-    <iframe v-else ref="iframe" v-loading.fullscreen.lock="fullscreenLoading" :src="urlPath" class="iframe" />
+    <iframe ref="iframe" v-loading.fullscreen.lock="fullscreenLoading" :src="redirect" class="iframe" />
   </div>
 </template>
 
@@ -9,14 +8,20 @@
 export default {
   name: 'MyIframe',
   components: {},
+  props: {
+    redirect: {
+      type: String,
+      request: true,
+      default: ''
+    }
+  },
   data() {
     return {
-      fullscreenLoading: false,
-      urlPath: this.getUrlPath()
+      fullscreenLoading: false
     }
   },
   created() {
-    console.log('我进来了')
+    console.log(this.$route)
     this.fullscreenLoading = true
   },
   mounted() {
@@ -39,17 +44,6 @@ export default {
           this.fullscreenLoading = false
         }
       }
-    },
-    getRedirectPath: function() {
-      let url = this.$route.path
-      url = url.replace('/iframe/redirect=', '')
-      return url
-    },
-    getUrlPath: function() {
-      let url = window.location.href
-      url = url.substring(url.indexOf('redirect=') + 9)
-      console.log('http://' + url)
-      return 'http://' + url
     }
   }
 }

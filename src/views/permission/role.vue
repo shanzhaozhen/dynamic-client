@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-button type="primary" @click="handleAdd">创建角色</el-button>
 
-    <el-table v-loading="listLoading" :data="rolesList" style="width: 100%;margin-top:30px;" @sort-change="sortChange" border>
+    <el-table v-loading="listLoading" border :data="rolesList" style="width: 100%;margin-top:30px;" @sort-change="sortChange">
       <el-table-column align="center" label="id" prop="id" sortable width="60">
         <template slot-scope="scope">
           {{ scope.row.id }}
@@ -33,7 +33,7 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.current" :limit.sync="listQuery.size" @pagination="getRoles" />
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='new'?'创建角色':'编辑角色'">
+    <el-dialog v-loading="dialogLoading" :visible.sync="dialogVisible" :destroy-on-close="true" :title="dialogType==='new'?'创建角色':'编辑角色'">
       <el-form ref="roleForm" :model="role" label-width="80px" label-position="left" :rules="rules">
         <el-form-item label="名称" prop="name">
           <el-input v-model="role.name" placeholder="角色名称" />
@@ -52,27 +52,26 @@
         <el-form-item label="权限分配">
           <el-tree
             ref="tree"
+            class="permission-tree"
+            node-key="id"
+            show-checkbox
             :check-strictly="checkStrictly"
             :data="resources"
             :props="defaultProps"
+            :default-expanded-keys="role.resourceIds"
             @check-change="checkChange"
-            show-checkbox
-            :default-expanded-keys="this.role.resourceIds"
-            node-key="id"
-            class="permission-tree"
           />
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
         <el-button type="danger" @click="dialogVisible=false">取消</el-button>
-        <el-button :loading="loading" type="primary" @click="dialogType==='new'?createData():updateData()">确定</el-button>
+        <el-button v-loading="loading" type="primary" @click="dialogType==='new'?createData():updateData()">确定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { deepClone } from '@/utils'
 import { getRoles, getRole, addRole, updateRole, deleteRole } from '@/api/role'
 import { getAllResourceTree } from '@/api/resource'
 import Pagination from '@/components/Pagination' // 分页模块
@@ -103,6 +102,7 @@ export default {
       resources: [],
       rolesList: [],
       dialogVisible: false,
+      dialogLoading: false,
       dialogType: 'new',
       checkStrictly: true,
       defaultProps: {
@@ -157,23 +157,29 @@ export default {
       this.role.resourceIds = this.$refs.tree.getCheckedKeys()
     },
     async handleAdd() {
+      this.role = {}
       this.loading = false
-      this.role = Object.assign({}, defaultRole)
       this.dialogType = 'new'
+      // this.dialogLoading = true
       this.dialogVisible = true
+      this.role = Object.assign({}, defaultRole)
       await this.getResources().then(() => {
         this.$refs.tree.setCheckedKeys([])
       })
+      this.dialogLoading = false
     },
     async handleEdit(scope) {
+      this.role = {}
       this.loading = false
       this.dialogType = 'edit'
+      // this.dialogLoading = true
       this.dialogVisible = true
       await getRole(scope.row.id).then(async res => {
         this.role = res.data
         await this.getResources()
-        this.$refs.tree.setCheckedKeys(this.role.resourceIds)
+        this.$refs.tree.setCheckedKeys(this.role.resourceIds || [])
       })
+      this.dialogLoading = false
     },
     createData() {
       this.$refs.roleForm.validate(async valid => {

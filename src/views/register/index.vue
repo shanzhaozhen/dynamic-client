@@ -124,7 +124,10 @@ export default {
           { min: 4, max: 20, message: '长度在 4 到 20 个字符', trigger: 'blur' },
           { required: true, trigger: 'blur', validator: validateUsername }
         ],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        password: [
+          { min: 6, max: 25, message: '长度在 6 到 25 个字符', trigger: 'blur' },
+          { required: true, trigger: 'blur', validator: validatePassword }
+        ],
         checkPassword: [{ required: true, trigger: 'blur', validator: validateCheckPassword }]
       },
       passwordType: 'password',
