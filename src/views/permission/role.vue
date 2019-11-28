@@ -44,7 +44,7 @@
         <el-form-item label="描述">
           <el-input
             v-model="role.description"
-            :autosize="{ minRows: 2, maxRows: 4}"
+            :autosize="{ minRows: 4, maxRows: 10 }"
             type="textarea"
             placeholder="角色描述"
           />
@@ -199,7 +199,7 @@ export default {
               type: 'success'
             })
             this.loading = false
-            this.getAllResourceTree()
+            this.getRoles()
           }).catch(() => {
             this.loading = false
           })
@@ -225,7 +225,7 @@ export default {
               type: 'success'
             })
             this.loading = false
-            this.getAllResourceTree()
+            this.getRoles()
           }).catch(() => {
             this.loading = false
           })
@@ -244,7 +244,7 @@ export default {
           type: 'success',
           message: '删除成功!'
         })
-        this.getAllResourceTree()
+        this.getRoles()
       }).catch(() => {
         this.$message({
           type: 'warning',

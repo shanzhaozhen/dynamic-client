@@ -1,3 +1,5 @@
+import Layout from '@/layout'
+
 import { asyncRoutes, constantRoutes } from '@/router'
 import { getResources } from '@/api/resource'
 
@@ -18,7 +20,7 @@ function filterAsyncRoutes(menu, route) {
  * @param routes asyncRoutes
  * @param roles
  */
-export function filterAndRenderingAsyncRoutes(routes, menus) {
+function filterAndRenderingAsyncRoutes(routes, menus) {
   const res = []
 
   routes.forEach(route => {
@@ -39,6 +41,45 @@ export function filterAndRenderingAsyncRoutes(routes, menus) {
         res.push(tmpRoute)
       }
     })
+  })
+
+  return res
+}
+
+const defaultRoute = {
+  path: '',
+  component: '',
+  redirect: '',
+  name: '',
+  meta: {},
+  children: []
+}
+
+/**
+ * 将路由全权交给后台管理
+ * @param menus
+ * @returns {[]}
+ */
+function generateAsyncRoutes(menus) {
+  const res = []
+
+  menus.forEach(tmpMenu => {
+    const tmpRoute = Object.assign({}, defaultRoute)
+    tmpRoute.path = tmpMenu.path
+    if (tmpMenu.component === 'Layout') {
+      tmpRoute.component = Layout
+    } else {
+      tmpRoute.component = () => import(tmpMenu.component)
+    }
+    tmpRoute.redirect = tmpMenu.redirect
+    tmpRoute.name = tmpMenu.name
+    tmpRoute.hidden = tmpMenu.hidden
+    tmpRoute.alwaysShow = tmpMenu.alwaysShow
+    tmpRoute.meta = tmpMenu.meta
+    if (tmpMenu.children && tmpMenu.children.length) {
+      tmpRoute.children = generateAsyncRoutes(tmpMenu.children)
+    }
+    res.push(tmpRoute)
   })
 
   return res
