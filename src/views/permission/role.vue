@@ -56,9 +56,9 @@
             node-key="id"
             show-checkbox
             :check-strictly="checkStrictly"
-            :data="resources"
+            :data="menus"
             :props="defaultProps"
-            :default-expanded-keys="role.resourceIds"
+            :default-expanded-keys="role.menuIds"
             @check-change="checkChange"
           />
         </el-form-item>
@@ -73,7 +73,7 @@
 
 <script>
 import { getRoles, getRole, addRole, updateRole, deleteRole } from '@/api/role'
-import { getAllResourceTree } from '@/api/resource'
+import { getAllMenuTree } from '@/api/menu'
 import Pagination from '@/components/Pagination' // 分页模块
 
 const defaultRole = {
@@ -81,7 +81,7 @@ const defaultRole = {
   name: '',
   identification: '',
   description: '',
-  resourceIds: []
+  menuIds: []
 }
 
 export default {
@@ -99,7 +99,7 @@ export default {
       },
       loading: false,
       role: Object.assign({}, defaultRole),
-      resources: [],
+      menus: [],
       rolesList: [],
       dialogVisible: false,
       dialogLoading: false,
@@ -132,9 +132,9 @@ export default {
       this.total = data.total
       this.listLoading = false
     },
-    async getResources() {
-      const res = await getAllResourceTree()
-      this.resources = res.data
+    async getMenus() {
+      const res = await getAllMenuTree()
+      this.menus = res.data
     },
     sortChange(data) {
       const { prop, order } = data
@@ -154,7 +154,7 @@ export default {
       this.getRoles()
     },
     checkChange() {
-      this.role.resourceIds = this.$refs.tree.getCheckedKeys()
+      this.role.menuIds = this.$refs.tree.getCheckedKeys()
     },
     async handleAdd() {
       this.role = {}
@@ -163,7 +163,7 @@ export default {
       // this.dialogLoading = true
       this.dialogVisible = true
       this.role = Object.assign({}, defaultRole)
-      await this.getResources().then(() => {
+      await this.getMenus().then(() => {
         this.$refs.tree.setCheckedKeys([])
       })
       this.dialogLoading = false
@@ -176,8 +176,8 @@ export default {
       this.dialogVisible = true
       await getRole(scope.row.id).then(async res => {
         this.role = res.data
-        await this.getResources()
-        this.$refs.tree.setCheckedKeys(this.role.resourceIds || [])
+        await this.getMenus()
+        this.$refs.tree.setCheckedKeys(this.role.menuIds || [])
       })
       this.dialogLoading = false
     },

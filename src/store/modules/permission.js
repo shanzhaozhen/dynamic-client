@@ -69,7 +69,7 @@ function generateAsyncRoutes(menus) {
     if (tmpMenu.component === 'Layout') {
       tmpRoute.component = Layout
     } else {
-      tmpRoute.component = () => import(tmpMenu.component)
+      tmpRoute.component = () => import(`@/views${tmpMenu.component}`)
     }
     tmpRoute.redirect = tmpMenu.redirect
     tmpRoute.name = tmpMenu.name
@@ -109,7 +109,9 @@ const actions = {
   },
   generateRoutes({ commit }, menus) {
     return new Promise(async resolve => {
-      const accessedRoutes = filterAndRenderingAsyncRoutes(asyncRoutes, menus)
+      // const accessedRoutes = filterAndRenderingAsyncRoutes(asyncRoutes, menus)
+      const accessedRoutes = generateAsyncRoutes(menus)
+      console.log(accessedRoutes)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

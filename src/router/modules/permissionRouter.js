@@ -30,9 +30,17 @@ const permissionRouter = {
       }
     },
     {
+      path: 'menu',
+      component: () => import('@/views/permission/menu'),
+      name: 'MenuPermission',
+      meta: {
+        title: '菜单管理'
+      }
+    },
+    {
       path: 'resource',
       component: () => import('@/views/permission/resource'),
-      name: 'menuPermission',
+      name: 'ResourcePermission',
       meta: {
         title: '资源管理'
       }
