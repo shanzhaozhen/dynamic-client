@@ -56,9 +56,9 @@
             node-key="id"
             show-checkbox
             :check-strictly="checkStrictly"
-            :data="menus"
+            :data="routes"
             :props="defaultProps"
-            :default-expanded-keys="role.menuIds"
+            :default-expanded-keys="role.routeIds"
             @check-change="checkChange"
           />
         </el-form-item>
@@ -73,7 +73,7 @@
 
 <script>
 import { getRoles, getRole, addRole, updateRole, deleteRole } from '@/api/role'
-import { getAllMenuTree } from '@/api/menu'
+import { getAllRouteTree } from '@/api/route'
 import Pagination from '@/components/Pagination' // 分页模块
 
 const defaultRole = {
@@ -81,7 +81,7 @@ const defaultRole = {
   name: '',
   identification: '',
   description: '',
-  menuIds: []
+  routeIds: []
 }
 
 export default {
@@ -99,7 +99,7 @@ export default {
       },
       loading: false,
       role: Object.assign({}, defaultRole),
-      menus: [],
+      routes: [],
       rolesList: [],
       dialogVisible: false,
       dialogLoading: false,
@@ -132,9 +132,9 @@ export default {
       this.total = data.total
       this.listLoading = false
     },
-    async getMenus() {
-      const res = await getAllMenuTree()
-      this.menus = res.data
+    async getRoutes() {
+      const res = await getAllRouteTree()
+      this.routes = res.data
     },
     sortChange(data) {
       const { prop, order } = data
@@ -154,7 +154,7 @@ export default {
       this.getRoles()
     },
     checkChange() {
-      this.role.menuIds = this.$refs.tree.getCheckedKeys()
+      this.role.routeIds = this.$refs.tree.getCheckedKeys()
     },
     async handleAdd() {
       this.role = {}
@@ -163,7 +163,7 @@ export default {
       // this.dialogLoading = true
       this.dialogVisible = true
       this.role = Object.assign({}, defaultRole)
-      await this.getMenus().then(() => {
+      await this.getRoutes().then(() => {
         this.$refs.tree.setCheckedKeys([])
       })
       this.dialogLoading = false
@@ -176,8 +176,8 @@ export default {
       this.dialogVisible = true
       await getRole(scope.row.id).then(async res => {
         this.role = res.data
-        await this.getMenus()
-        this.$refs.tree.setCheckedKeys(this.role.menuIds || [])
+        await this.getRoutes()
+        this.$refs.tree.setCheckedKeys(this.role.routeIds || [])
       })
       this.dialogLoading = false
     },

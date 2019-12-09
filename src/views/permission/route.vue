@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-button type="primary" @click="handleAdd">创建菜单</el-button>
 
-    <el-table v-loading="listLoading" :data="menuList" style="width: 100%;margin-top:30px;" row-key="id" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" border>
+    <el-table v-loading="listLoading" :data="routeList" style="width: 100%;margin-top:30px;" row-key="id" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" border>
       <el-table-column align="center" label="id" width="60">
         <template slot-scope="scope">
           {{ scope.row.id }}
@@ -59,71 +59,47 @@
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑菜单':'新建菜单'">
-      <el-form ref="menuForm" :model="menu" label-width="85px" label-position="right" :rules="rules">
+      <el-form ref="routeForm" :model="route" label-width="85px" label-position="right" :rules="rules">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="组件名称">
-              <el-input v-model="menu.name" placeholder="组件名称" />
+            <el-form-item label="组件名称" prop="name">
+              <el-input v-model="route.name" placeholder="组件名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="显示名称">
-              <el-input v-model="menu.title" placeholder="显示名称" />
+              <el-input v-model="route.title" placeholder="显示名称" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="菜单路由">
-              <el-input v-model="menu.path" placeholder="菜单路由" />
+            <el-form-item label="路由地址">
+              <el-input v-model="route.path" placeholder="路由地址" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="显示名称">
-              <el-input v-model="menu.title" placeholder="显示名称" />
+            <el-form-item label="前端组件">
+              <el-input v-model="route.component" placeholder="前端组件" />
             </el-form-item>
           </el-col>
         </el-row>
-
-        <el-form-item label="组件名称" prop="name">
-          <el-input v-model="menu.name" placeholder="组件名称" />
-        </el-form-item>
-        <el-form-item label="路由">
-          <el-input v-model="menu.path" placeholder="菜单路由" />
-        </el-form-item>
         <el-row>
+          <el-col :span="12">
+            <el-form-item label="重定向路径">
+              <el-input v-model="route.redirect" placeholder="重定向路径" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="图标">
-              <el-input v-model="menu.icon" placeholder="菜单图标" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="类型">
-              <el-select v-model="menu.type" placeholder="请选择菜单类型">
-                <el-option v-for="item in menuTypeOptions" :key="item.key" :label="item.name" :value="item.value" />
-              </el-select>
+              <el-input v-model="route.icon" placeholder="菜单图标" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="排序等级">
-              <el-input-number v-model="menu.priority" :min="1" label="排序等级" />
-            </el-form-item>
-          </el-col>
           <el-col :span="12">
             <el-form-item label="隐藏菜单">
-              <el-radio-group v-model="menu.hidden">
-                <el-radio :label="true">是</el-radio>
-                <el-radio :label="false">否</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="打开固钉">
-              <el-radio-group v-model="menu.affix">
+              <el-radio-group v-model="route.hidden">
                 <el-radio :label="true">是</el-radio>
                 <el-radio :label="false">否</el-radio>
               </el-radio-group>
@@ -131,7 +107,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="总是显示">
-              <el-radio-group v-model="menu.alwaysShow">
+              <el-radio-group v-model="route.alwaysShow">
                 <el-radio :label="true">是</el-radio>
                 <el-radio :label="false">否</el-radio>
               </el-radio-group>
@@ -141,27 +117,50 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="启动缓存">
-              <el-radio-group v-model="menu.noCache">
+              <el-radio-group v-model="route.noCache">
                 <el-radio :label="true">是</el-radio>
                 <el-radio :label="false">否</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="打开面包屑">
-              <el-radio-group v-model="menu.breadcrumb">
+            <el-form-item label="打开固钉">
+              <el-radio-group v-model="route.affix">
                 <el-radio :label="true">是</el-radio>
                 <el-radio :label="false">否</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="打开面包屑">
+              <el-radio-group v-model="route.breadcrumb">
+                <el-radio :label="true">是</el-radio>
+                <el-radio :label="false">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="父级路由">
+              <el-cascader v-model="route.pid" clearable :options="routeList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="排序等级">
+              <el-input-number v-model="route.priority" :min="1" label="排序等级" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="参数">
+          <codemirror v-model="route.props"></codemirror>
+        </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="menu.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="菜单描述" />
+          <el-input v-model="route.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="路由描述" />
         </el-form-item>
-        <el-form-item label="父子节点">
-          <el-cascader v-model="menu.pid" clearable :options="menuList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
-        </el-form-item>
+
       </el-form>
       <div style="text-align:right;">
         <el-button type="danger" @click="dialogVisible=false">取消</el-button>
@@ -172,17 +171,12 @@
 </template>
 
 <script>
-import { getAllMenuTree, addMenu, updateMenu } from '@/api/menu'
+import CodeEditor from '@/components/CodeEditor'
+import { getAllRouteTree, addRoute, updateRoute } from '@/api/route'
 import { deepClone } from '@/utils'
-import { deleteMenu } from '../../api/menu'
+import { deleteRoute } from '../../api/route'
 
-const menuTypeOptions = [
-  { value: 0, name: '菜单' },
-  { value: 1, name: '按钮' },
-  { value: 2, name: 'API' }
-]
-
-const defaultMenu = {
+const defaultRoute = {
   id: undefined,
   name: '',
   description: '',
@@ -202,12 +196,13 @@ const defaultMenu = {
 }
 
 export default {
+  comments: { CodeEditor },
   data() {
     return {
       listLoading: true,
       loading: false,
-      menu: Object.assign({}, defaultMenu),
-      menuList: [],
+      route: Object.assign({}, defaultRoute),
+      routeList: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: true,
@@ -217,29 +212,28 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '请输入菜单名称', trigger: 'blur' }
+          { required: true, message: '请输入组件名称', trigger: 'blur' }
         ]
-      },
-      menuTypeOptions
+      }
     }
   },
   computed: {
   },
   created() {
-    this.getAllMenuTree()
+    this.getAllRouteTree()
   },
   methods: {
-    async getAllMenuTree() {
+    async getAllRouteTree() {
       this.listLoading = true
-      const res = await getAllMenuTree().catch(() => {
+      const res = await getAllRouteTree().catch(() => {
         this.listLoading = false
       })
-      this.menuList = res.data
+      this.routeList = res.data
       this.listLoading = false
     },
     handleAdd() {
       this.loading = false
-      this.menu = Object.assign({}, defaultMenu)
+      this.route = Object.assign({}, defaultRoute)
       this.dialogType = 'new'
       this.dialogVisible = true
     },
@@ -247,14 +241,14 @@ export default {
       this.loading = false
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.menu = deepClone(scope.row)
+      this.route = deepClone(scope.row)
     },
     createData() {
-      this.$refs.menuForm.validate(async valid => {
+      this.$refs.routeForm.validate(async valid => {
         if (valid) {
           this.loading = true
-          await addMenu(this.menu).then(res => {
-            const { name, description } = this.menu
+          await addRoute(this.route).then(res => {
+            const { name, description } = this.route
             this.dialogVisible = false
             this.$notify({
               title: '添加成功',
@@ -266,7 +260,7 @@ export default {
               type: 'success'
             })
             this.loading = false
-            this.getAllMenuTree()
+            this.getAllRouteTree()
           }).catch(() => {
             this.loading = false
           })
@@ -274,12 +268,12 @@ export default {
       })
     },
     updateData() {
-      this.$refs.menuForm.validate(async valid => {
+      this.$refs.routeForm.validate(async valid => {
         if (valid) {
           this.loading = true
-          await updateMenu(this.menu).then(res => {
+          await updateRoute(this.route).then(res => {
             console.log(res)
-            const { name, description } = this.menu
+            const { name, description } = this.route
             this.dialogVisible = false
             this.$notify({
               title: '修改成功',
@@ -291,7 +285,7 @@ export default {
               type: 'success'
             })
             this.loading = false
-            this.getAllMenuTree()
+            this.getAllRouteTree()
           }).catch(() => {
             this.loading = false
           })
@@ -305,12 +299,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
-        await deleteMenu(row.id)
+        await deleteRoute(row.id)
         this.$message({
           type: 'success',
           message: '删除成功!'
         })
-        this.getAllMenuTree()
+        this.getAllRouteTree()
       }).catch(() => {
         this.$message({
           type: 'warning',
@@ -324,7 +318,7 @@ export default {
 
 <style lang="scss" scoped>
   .app-container {
-    .menus-table {
+    .routes-table {
       margin-top: 30px;
     }
     .permission-tree {

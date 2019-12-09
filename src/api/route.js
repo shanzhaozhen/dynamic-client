@@ -1,38 +1,38 @@
 import request from '@/utils/request'
 
-export function getAllMenuTree() {
+export function getAllRouteTree() {
   return request({
-    url: '/menu/tree',
+    url: '/route/tree',
     method: 'get'
   })
 }
 
-export function getMenuById(id) {
+export function getRouteById(id) {
   return request({
-    url: `/menu/${id}`,
+    url: `/route/${id}`,
     method: 'get'
   })
 }
 
-export function addMenu(data) {
+export function addRoute(data) {
   return request({
-    url: '/menu',
+    url: '/route',
     method: 'post',
     data
   })
 }
 
-export function updateMenu(data) {
+export function updateRoute(data) {
   return request({
-    url: '/menu',
+    url: '/route',
     method: 'put',
     data
   })
 }
 
-export function deleteMenu(id) {
+export function deleteRoute(id) {
   return request({
-    url: `/menu/${id}`,
+    url: `/route/${id}`,
     method: 'delete'
   })
 }
