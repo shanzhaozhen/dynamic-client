@@ -77,3 +77,8 @@
 .el-range-editor.el-input__inner {
   display: inline-flex !important;
 }
+
+//解决表头错位
+body .el-table th.gutter {
+  display: table !important;
+}
