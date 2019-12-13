@@ -9,9 +9,6 @@ import './styles/element-variables.scss'
 
 import '@/styles/index.scss' // 全局样式
 
-import VueCodemirror from 'vue-codemirror'
-import 'codemirror/lib/codemirror.css'
-
 import App from './App'
 import store from './store'
 import router from './router'
@@ -26,8 +23,6 @@ Vue.config.productionTip = false
 Vue.use(ElementUI, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
-
-Vue.use(VueCodemirror)
 
 // 注册公共filters
 Object.keys(filters).forEach(key => {

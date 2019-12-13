@@ -80,6 +80,9 @@ function generateAsyncRoutes(asyncRouters) {
     if (asyncRouter.children && asyncRouter.children.length) {
       tmpRoute.children = generateAsyncRoutes(asyncRouter.children)
     }
+    if (asyncRouter.props && asyncRouter.props !== '{}') {
+      tmpRoute.props = JSON.parse(asyncRouter.props)
+    }
     res.push(tmpRoute)
   })
 

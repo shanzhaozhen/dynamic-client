@@ -21,7 +21,6 @@ export default {
     }
   },
   created() {
-    console.log(this.$route)
     this.fullscreenLoading = true
   },
   mounted() {

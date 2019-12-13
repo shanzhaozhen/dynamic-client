@@ -155,12 +155,13 @@
           </el-col>
         </el-row>
         <el-form-item label="参数">
-          <codemirror v-model="route.props"></codemirror>
+          <div class="json-editor-container">
+            <json-editor ref="jsonEditor" v-model="propsToJson" />
+          </div>
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="route.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="路由描述" />
         </el-form-item>
-
       </el-form>
       <div style="text-align:right;">
         <el-button type="danger" @click="dialogVisible=false">取消</el-button>
@@ -171,10 +172,9 @@
 </template>
 
 <script>
-import CodeEditor from '@/components/CodeEditor'
-import { getAllRouteTree, addRoute, updateRoute } from '@/api/route'
+import JsonEditor from '@/components/JsonEditor'
+import { getAllRouteTree, addRoute, updateRoute, deleteRoute } from '@/api/route'
 import { deepClone } from '@/utils'
-import { deleteRoute } from '../../api/route'
 
 const defaultRoute = {
   id: undefined,
@@ -196,7 +196,8 @@ const defaultRoute = {
 }
 
 export default {
-  comments: { CodeEditor },
+  name: 'Route',
+  components: { JsonEditor },
   data() {
     return {
       listLoading: true,
@@ -218,6 +219,14 @@ export default {
     }
   },
   computed: {
+    propsToJson: {
+      get() {
+        return JSON.parse(this.route.props || '{}')
+      },
+      set(value) {
+        this.route.props = JSON.stringify(value)
+      }
+    }
   },
   created() {
     this.getAllRouteTree()
@@ -323,6 +332,10 @@ export default {
     }
     .permission-tree {
       margin-bottom: 30px;
+    }
+
+    .json-editor-container {
+      line-height: normal;
     }
   }
 </style>
