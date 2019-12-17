@@ -144,7 +144,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="父级路由">
+            <el-form-item label="上级路由">
               <el-cascader v-model="route.pid" clearable :options="routeList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
             </el-form-item>
           </el-col>

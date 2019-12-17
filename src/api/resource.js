@@ -7,6 +7,13 @@ export function getAllResourceTree() {
   })
 }
 
+export function getAllResourceRootTree() {
+  return request({
+    url: '/resource/root-tree',
+    method: 'get'
+  })
+}
+
 export function getResourceById(id) {
   return request({
     url: `/resource/${id}`,

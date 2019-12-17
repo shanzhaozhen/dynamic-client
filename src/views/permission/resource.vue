@@ -61,61 +61,70 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="父子节点">
+            <el-form-item label="类型">
+              <el-select v-model="resource.type" placeholder="请选择资源类型">
+                <el-option v-for="item in resourceTypeOptions" :key="item.key" :label="item.name" :value="item.value" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="上级节点">
               <el-cascader v-model="resource.pid" clearable :options="resourceList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="排序等级">
               <el-input-number v-model="resource.priority" :min="1" label="排序等级" />
             </el-form-item>
           </el-col>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="GET请求">
-                <el-radio-group v-model="resource.supportGet">
-                  <el-radio :label="true">开启</el-radio>
-                  <el-radio :label="false">关闭</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="POST请求">
-                <el-radio-group v-model="resource.supportPost">
-                  <el-radio :label="true">开启</el-radio>
-                  <el-radio :label="false">关闭</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="PUT请求">
-                <el-radio-group v-model="resource.supportPut">
-                  <el-radio :label="true">开启</el-radio>
-                  <el-radio :label="false">关闭</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="DELETE请求">
-                <el-radio-group v-model="resource.supportDelete">
-                  <el-radio :label="true">开启</el-radio>
-                  <el-radio :label="false">关闭</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="PATCH请求">
-                <el-radio-group v-model="resource.supportPatch">
-                  <el-radio :label="true">开启</el-radio>
-                  <el-radio :label="false">关闭</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-          </el-row>
+        </el-row>
+        <el-row v-if="resource.type === 1">
+          <el-col :span="12">
+            <el-form-item label="GET请求">
+              <el-radio-group v-model="resource.supportGet">
+                <el-radio :label="true">开启</el-radio>
+                <el-radio :label="false">关闭</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="POST请求">
+              <el-radio-group v-model="resource.supportPost">
+                <el-radio :label="true">开启</el-radio>
+                <el-radio :label="false">关闭</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="resource.type === 1">
+          <el-col :span="12">
+            <el-form-item label="PUT请求">
+              <el-radio-group v-model="resource.supportPut">
+                <el-radio :label="true">开启</el-radio>
+                <el-radio :label="false">关闭</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="DELETE请求">
+              <el-radio-group v-model="resource.supportDelete">
+                <el-radio :label="true">开启</el-radio>
+                <el-radio :label="false">关闭</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="resource.type === 1">
+          <el-col :span="12">
+            <el-form-item label="PATCH请求">
+              <el-radio-group v-model="resource.supportPatch">
+                <el-radio :label="true">开启</el-radio>
+                <el-radio :label="false">关闭</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-form-item label="描述">
           <el-input v-model="resource.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="资源描述" />
@@ -130,7 +139,7 @@
 </template>
 
 <script>
-import { getAllResourceTree, addResource, updateResource, deleteResource } from '@/api/resource'
+import { getAllResourceTree, getAllResourceRootTree, addResource, updateResource, deleteResource } from '@/api/resource'
 import { deepClone } from '@/utils'
 
 const resourceTypeOptions = [
@@ -159,6 +168,7 @@ export default {
       loading: false,
       resource: Object.assign({}, defaultResource),
       resourceList: [],
+      resourceRootList: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: true,
@@ -188,17 +198,23 @@ export default {
       this.resourceList = res.data
       this.listLoading = false
     },
-    handleAdd() {
+    async getAllResourceRootTree() {
+      const res = await getAllResourceRootTree()
+      this.resourceRootList = res.data
+    },
+    async handleAdd() {
       this.loading = false
       this.resource = Object.assign({}, defaultResource)
       this.dialogType = 'new'
+      await this.getAllResourceRootTree()
       this.dialogVisible = true
     },
-    handleEdit(scope) {
+    async handleEdit(scope) {
       this.loading = false
       this.dialogType = 'edit'
-      this.dialogVisible = true
       this.resource = deepClone(scope.row)
+      await this.getAllResourceRootTree()
+      this.dialogVisible = true
     },
     createData() {
       this.$refs.resourceForm.validate(async valid => {
