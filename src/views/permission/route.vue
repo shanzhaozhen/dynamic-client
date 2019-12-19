@@ -145,7 +145,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="上级路由">
-              <el-cascader v-model="route.pid" clearable :options="routeList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
+              <el-cascader v-model="route.pid" clearable :options="routeTree" :props="{ expandTrigger: 'hover', value: 'id', label: 'title', emitPath: false, checkStrictly: true }" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -175,24 +175,26 @@
 import JsonEditor from '@/components/JsonEditor'
 import { getAllRouteTree, addRoute, updateRoute, deleteRoute } from '@/api/route'
 import { deepClone } from '@/utils'
+import { getRouteById } from '../../api/route'
 
 const defaultRoute = {
-  id: undefined,
+  id: null,
   name: '',
-  description: '',
   type: 0,
   path: '',
-  redirect: '',
+  pid: null,
   component: '',
-  props: '',
-  pid: undefined,
+  redirect: '',
+  title: '',
   icon: '',
   priority: 1,
   hidden: false,
   alwaysShow: false,
   noCache: true,
   affix: false,
-  breadcrumb: true
+  breadcrumb: true,
+  props: '',
+  description: ''
 }
 
 export default {
@@ -204,6 +206,7 @@ export default {
       loading: false,
       route: Object.assign({}, defaultRoute),
       routeList: [],
+      routeTree: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: true,
@@ -240,17 +243,34 @@ export default {
       this.routeList = res.data
       this.listLoading = false
     },
-    handleAdd() {
+    excludeRouteTreeNode(excludeId, list) {
+      if (excludeId && excludeId.length > 0) {
+        list.forEach((item, index, arr) => {
+          if (excludeId.includes(item.id)) {
+            arr[index].disabled = true
+          }
+          if (item.children && item.children.length > 0) {
+            this.excludeRouteTreeNode(excludeId, item.children)
+          }
+        })
+      }
+      return list
+    },
+    async handleAdd() {
       this.loading = false
       this.route = Object.assign({}, defaultRoute)
       this.dialogType = 'new'
+      this.routeTree = deepClone(this.routeList)
       this.dialogVisible = true
     },
-    handleEdit(scope) {
+    async handleEdit(scope) {
       this.loading = false
       this.dialogType = 'edit'
-      this.dialogVisible = true
-      this.route = deepClone(scope.row)
+      getRouteById(scope.row.id).then(res => {
+        this.route = res.data
+        this.routeTree = this.excludeRouteTreeNode([scope.row.id], deepClone(this.routeList))
+        this.dialogVisible = true
+      })
     },
     createData() {
       this.$refs.routeForm.validate(async valid => {

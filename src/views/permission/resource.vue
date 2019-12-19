@@ -69,7 +69,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="上级节点">
-              <el-cascader v-model="resource.pid" clearable :options="resourceList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
+              <el-cascader v-model="resource.pid" clearable :options="resourceRootList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -139,8 +139,7 @@
 </template>
 
 <script>
-import { getAllResourceTree, getAllResourceRootTree, addResource, updateResource, deleteResource } from '@/api/resource'
-import { deepClone } from '@/utils'
+import { getAllResourceTree, getAllResourceRootTree, getResourceById, addResource, updateResource, deleteResource } from '@/api/resource'
 
 const resourceTypeOptions = [
   { value: 0, name: '分类' },
@@ -198,9 +197,22 @@ export default {
       this.resourceList = res.data
       this.listLoading = false
     },
-    async getAllResourceRootTree() {
+    async getAllResourceRootTree(excludeId) {
       const res = await getAllResourceRootTree()
-      this.resourceRootList = res.data
+      this.resourceRootList = this.excludeResourceTreeNode(excludeId, res.data)
+    },
+    excludeResourceTreeNode(excludeId, list) {
+      if (excludeId && excludeId.length > 0) {
+        list.forEach((item, index, arr) => {
+          if (excludeId.includes(item.id)) {
+            arr[index].disabled = true
+          }
+          if (item.children && item.children.length > 0) {
+            this.excludeResourceTreeNode(excludeId, item.children)
+          }
+        })
+      }
+      return list
     },
     async handleAdd() {
       this.loading = false
@@ -212,9 +224,11 @@ export default {
     async handleEdit(scope) {
       this.loading = false
       this.dialogType = 'edit'
-      this.resource = deepClone(scope.row)
-      await this.getAllResourceRootTree()
-      this.dialogVisible = true
+      getResourceById(scope.row.id).then(async res => {
+        this.resource = res.data
+        await this.getAllResourceRootTree([this.resource.id])
+        this.dialogVisible = true
+      })
     },
     createData() {
       this.$refs.resourceForm.validate(async valid => {
@@ -245,7 +259,6 @@ export default {
         if (valid) {
           this.loading = true
           await updateResource(this.resource).then(res => {
-            console.log(res)
             const { name, description } = this.resource
             this.dialogVisible = false
             this.$notify({

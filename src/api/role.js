@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getRoles(query) {
+export function getRolePage(query) {
   return request({
     url: '/role/page',
     method: 'post',
@@ -8,7 +8,7 @@ export function getRoles(query) {
   })
 }
 
-export function getRole(id) {
+export function getRoleById(id) {
   return request({
     url: `/role/${id}`,
     method: 'get'

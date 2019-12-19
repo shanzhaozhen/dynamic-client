@@ -31,7 +31,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.current" :limit.sync="listQuery.size" @pagination="getRoles" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.current" :limit.sync="listQuery.size" @pagination="getRolePage" />
 
     <el-dialog v-loading="dialogLoading" :visible.sync="dialogVisible" :destroy-on-close="true" :title="dialogType==='new'?'创建角色':'编辑角色'">
       <el-form ref="roleForm" :model="role" label-width="80px" label-position="left" :rules="rules">
@@ -49,17 +49,30 @@
             placeholder="角色描述"
           />
         </el-form-item>
-        <el-form-item label="权限分配">
+        <el-form-item label="路由分配">
           <el-tree
-            ref="tree"
-            class="permission-tree"
+            ref="routeTree"
+            class="route-tree"
             node-key="id"
             show-checkbox
             :check-strictly="checkStrictly"
-            :data="routes"
-            :props="defaultProps"
+            :data="routeTree"
+            :props="routeTreeProps"
             :default-expanded-keys="role.routeIds"
-            @check-change="checkChange"
+            @check-change="checkRouteTreeChange"
+          />
+        </el-form-item>
+        <el-form-item label="权限分配">
+          <el-tree
+            ref="resourceTree"
+            class="resource-tree"
+            node-key="id"
+            show-checkbox
+            :check-strictly="checkStrictly"
+            :data="resourceTree"
+            :props="resourceTreeProps"
+            :default-expanded-keys="role.resourceIds"
+            @check-change="checkResourceTreeChange"
           />
         </el-form-item>
       </el-form>
@@ -72,16 +85,18 @@
 </template>
 
 <script>
-import { getRoles, getRole, addRole, updateRole, deleteRole } from '@/api/role'
+import { getRolePage, getRoleById, addRole, updateRole, deleteRole } from '@/api/role'
 import { getAllRouteTree } from '@/api/route'
-import Pagination from '@/components/Pagination' // 分页模块
+import Pagination from '@/components/Pagination'
+import { getAllResourceTree } from '../../api/resource' // 分页模块
 
 const defaultRole = {
   id: '',
   name: '',
   identification: '',
   description: '',
-  routeIds: []
+  routeIds: [],
+  resourceIds: []
 }
 
 export default {
@@ -99,13 +114,18 @@ export default {
       },
       loading: false,
       role: Object.assign({}, defaultRole),
-      routes: [],
+      routeTree: [],
+      resourceTree: [],
       rolesList: [],
       dialogVisible: false,
       dialogLoading: false,
       dialogType: 'new',
       checkStrictly: true,
-      defaultProps: {
+      routeTreeProps: {
+        children: 'children',
+        label: 'title'
+      },
+      resourceTreeProps: {
         children: 'children',
         label: 'name'
       },
@@ -120,21 +140,25 @@ export default {
     }
   },
   created() {
-    this.getRoles()
+    this.getRolePage()
   },
   methods: {
-    async getRoles() {
+    async getRolePage() {
       this.listLoading = true
-      const { data } = await getRoles(this.listQuery).catch(() => {
+      const { data } = await getRolePage(this.listQuery).catch(() => {
         this.listLoading = false
       })
       this.rolesList = data.records
       this.total = data.total
       this.listLoading = false
     },
-    async getRoutes() {
+    async getRouteTree() {
       const res = await getAllRouteTree()
-      this.routes = res.data
+      this.routeTree = res.data
+    },
+    async getResourceTree() {
+      const res = await getAllResourceTree()
+      this.resourceTree = res.data
     },
     sortChange(data) {
       const { prop, order } = data
@@ -151,20 +175,25 @@ export default {
           asc: false
         }]
       }
-      this.getRoles()
+      this.getRolePage()
     },
-    checkChange() {
-      this.role.routeIds = this.$refs.tree.getCheckedKeys()
+    checkRouteTreeChange() {
+      this.role.routeIds = this.$refs.routeTree.getCheckedKeys()
+    },
+    checkResourceTreeChange() {
+      this.role.resourceIds = this.$refs.resourceTree.getCheckedKeys()
     },
     async handleAdd() {
       this.role = {}
       this.loading = false
       this.dialogType = 'new'
-      // this.dialogLoading = true
-      this.dialogVisible = true
       this.role = Object.assign({}, defaultRole)
-      await this.getRoutes().then(() => {
-        this.$refs.tree.setCheckedKeys([])
+      this.dialogVisible = true
+      await this.getRouteTree().then(() => {
+        this.$refs.routeTree.setCheckedKeys([])
+      })
+      await this.getRouteTree().then(() => {
+        this.$refs.resourceTree.setCheckedKeys([])
       })
       this.dialogLoading = false
     },
@@ -172,12 +201,17 @@ export default {
       this.role = {}
       this.loading = false
       this.dialogType = 'edit'
-      // this.dialogLoading = true
-      this.dialogVisible = true
-      await getRole(scope.row.id).then(async res => {
+      await getRoleById(scope.row.id).then(async res => {
         this.role = res.data
-        await this.getRoutes()
-        this.$refs.tree.setCheckedKeys(this.role.routeIds || [])
+        this.dialogVisible = true
+        this.$nextTick(() => {
+          this.getRouteTree().then(() => {
+            this.$refs.routeTree.setCheckedKeys(this.role.routeIds || [])
+          })
+          this.getResourceTree().then(() => {
+            this.$refs.resourceTree.setCheckedKeys(this.role.resourceIds || [])
+          })
+        })
       })
       this.dialogLoading = false
     },
