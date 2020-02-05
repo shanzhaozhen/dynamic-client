@@ -78,6 +78,48 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
+/**
+ * 所有路由，用于后台动态获取路由是使用，通过路由名获取对应的view
+ */
+export const allRoutes = {
+  'Permission': {
+    name: 'Permission',
+    component: Layout
+  },
+  'PagePermission': {
+    name: 'PagePermission',
+    component: () => import('@/views/permission/page')
+  },
+  'DirectivePermission': {
+    name: 'DirectivePermission',
+    component: () => import('@/views/permission/directive')
+  },
+  'RoutePermission': {
+    name: 'RoutePermission',
+    component: () => import('@/views/permission/route')
+  },
+  'ResourcePermission': {
+    name: 'ResourcePermission',
+    component: () => import('@/views/permission/resource')
+  },
+  'RolePermission': {
+    name: 'RolePermission',
+    component: () => import('@/views/permission/role')
+  },
+  'Iframe': {
+    name: 'Iframe',
+    component: Layout
+  },
+  'Druid': {
+    name: 'Druid',
+    component: () => import('@/views/iframe/index')
+  },
+  'Swagger': {
+    name: 'Swagger',
+    component: () => import('@/views/iframe/index')
+  }
+}
+
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAdd">创建菜单</el-button>
+    <el-button type="primary" @click="handleAdd">创建路由</el-button>
 
     <el-table v-loading="listLoading" :data="routeList" style="width: 100%;margin-top:30px;" row-key="id" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" border>
       <el-table-column align="center" label="id" width="60">
@@ -30,7 +30,7 @@
       </el-table-column>
       <el-table-column align="center" label="图标" width="80">
         <template slot-scope="scope">
-          {{ scope.row.icon }}
+          <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
       <el-table-column align="center" label="排序等级" width="80">
@@ -59,40 +59,42 @@
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑菜单':'新建菜单'">
-      <el-form ref="routeForm" :model="route" label-width="85px" label-position="right" :rules="rules">
+      <el-form ref="routeForm" :model="route" label-width="90px" label-position="right" :rules="rules">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="组件名称" prop="name">
-              <el-input v-model="route.name" placeholder="组件名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示名称">
+            <el-form-item label="显示名称" prop="title">
               <el-input v-model="route.title" placeholder="显示名称" />
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="组件名称" prop="name">
+              <el-select v-model="route.name" placeholder="请选择" prop="name">
+                <el-option v-for="item in routerOptions" :key="item.name" :label="item.name" :value="item.name" />
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="路由地址">
+            <el-form-item label="路由地址" prop="path">
               <el-input v-model="route.path" placeholder="路由地址" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="前端组件">
-              <el-input v-model="route.component" placeholder="前端组件" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="重定向路径">
               <el-input v-model="route.redirect" placeholder="重定向路径" />
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="图标">
-              <el-input v-model="route.icon" placeholder="菜单图标" />
+              <el-select v-model="route.icon" filterable clearable placeholder="请选择菜单图标">
+                <el-option v-for="item in allIcons" :key="item" :label="item" :value="item">
+                  <svg-icon v-if="item" :icon-class="item" />
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ item }}</span>
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -173,6 +175,8 @@
 
 <script>
 import JsonEditor from '@/components/JsonEditor'
+import { allRoutes } from '@/router'
+import { allIcons } from '@/icons'
 import { getAllRouteTree, addRoute, updateRoute, deleteRoute } from '@/api/route'
 import { deepClone } from '@/utils'
 import { getRouteById } from '../../api/route'
@@ -183,7 +187,6 @@ const defaultRoute = {
   type: 0,
   path: '',
   pid: null,
-  component: '',
   redirect: '',
   title: '',
   icon: '',
@@ -204,6 +207,8 @@ export default {
     return {
       listLoading: true,
       loading: false,
+      routerOptions: allRoutes,
+      allIcons: allIcons,
       route: Object.assign({}, defaultRoute),
       routeList: [],
       routeTree: [],
@@ -215,7 +220,13 @@ export default {
         label: 'name'
       },
       rules: {
+        title: [
+          { required: true, message: '请输入显示名称', trigger: 'blur' }
+        ],
         name: [
+          { required: true, message: '请输入组件名称', trigger: 'blur' }
+        ],
+        path: [
           { required: true, message: '请输入组件名称', trigger: 'blur' }
         ]
       }

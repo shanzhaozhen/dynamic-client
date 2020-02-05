@@ -1,12 +1,13 @@
 <template>
   <div>
     <div style="margin-bottom:15px;">
-      Your roles: {{ roles }}
+      你的角色: {{ roleView }}
     </div>
-    Switch roles:
+    切换角色:
     <el-radio-group v-model="switchRoles">
-      <el-radio-button label="editor" />
-      <el-radio-button label="admin" />
+      <el-radio-button v-for="(role, index) in roles" :key="index" :label="role.identification">
+        {{ role.name }}
+      </el-radio-button>
     </el-radio-group>
   </div>
 </template>
@@ -17,9 +18,12 @@ export default {
     roles() {
       return this.$store.getters.roles
     },
+    roleView() {
+      return this.$store.getters.roles.map(res => res.name)
+    },
     switchRoles: {
       get() {
-        return this.roles[0]
+        return this.roles[0].identification
       },
       set(val) {
         this.$store.dispatch('user/changeRoles', val).then(() => {

@@ -99,6 +99,7 @@ const actions = {
 
   // dynamically modify permissions todo:修改切换权限
   changeRoles({ commit, dispatch }, role) {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async resolve => {
       const token = role + '-token'
 

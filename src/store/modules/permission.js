@@ -1,7 +1,5 @@
-import Layout from '@/layout'
-
 // import { asyncRoutes, constantRoutes } from '@/router'
-import { constantRoutes } from '@/router'
+import { constantRoutes, allRoutes } from '@/router'
 import { getResources } from '@/api/resource'
 
 // /**
@@ -49,7 +47,7 @@ import { getResources } from '@/api/resource'
 
 const defaultRoute = {
   path: '',
-  component: '',
+  component: {},
   redirect: '',
   name: '',
   meta: {},
@@ -67,11 +65,12 @@ function generateAsyncRoutes(asyncRouters) {
   asyncRouters.forEach(asyncRouter => {
     const tmpRoute = Object.assign({}, defaultRoute)
     tmpRoute.path = asyncRouter.path
-    if (asyncRouter.component === 'Layout') {
-      tmpRoute.component = Layout
-    } else {
-      tmpRoute.component = () => import(`@/views${asyncRouter.component}`)
-    }
+    // if (asyncRouter.component === 'Layout') {
+    //   tmpRoute.component = Layout
+    // } else {
+    //   tmpRoute.component = () => import(`@/views${asyncRouter.component}`)
+    // }
+    tmpRoute.component = allRoutes[asyncRouter.name].component
     tmpRoute.redirect = asyncRouter.redirect
     tmpRoute.name = asyncRouter.name
     tmpRoute.hidden = asyncRouter.hidden
@@ -112,7 +111,7 @@ const actions = {
     })
   },
   generateRoutes({ commit }, menus) {
-    return new Promise(async resolve => {
+    return new Promise(resolve => {
       // const accessedRoutes = filterAndRenderingAsyncRoutes(asyncRoutes, menus)
       const accessedRoutes = generateAsyncRoutes(menus)
       commit('SET_ROUTES', accessedRoutes)

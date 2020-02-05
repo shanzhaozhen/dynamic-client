@@ -49,17 +49,11 @@
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑资源':'新建资源'">
       <el-form ref="resourceForm" :model="resource" label-width="100px" label-position="right" :rules="rules">
         <el-row>
-          <el-col :span="12"><el-form-item label="名称" prop="name">
-            <el-input v-model="resource.name" placeholder="资源名称" />
-          </el-form-item>
-          </el-col>
           <el-col :span="12">
-            <el-form-item label="路由">
-              <el-input v-model="resource.path" placeholder="资源路由" />
+            <el-form-item label="名称" prop="name">
+              <el-input v-model="resource.name" placeholder="资源名称" />
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="类型">
               <el-select v-model="resource.type" placeholder="请选择资源类型">
@@ -67,13 +61,13 @@
               </el-select>
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="上级节点">
               <el-cascader v-model="resource.pid" clearable :options="resourceRootList" :props="{ expandTrigger: 'hover', value: 'id', label: 'name', emitPath: false, checkStrictly: true }" />
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="排序等级">
               <el-input-number v-model="resource.priority" :min="1" label="排序等级" />
@@ -82,50 +76,57 @@
         </el-row>
         <el-row v-if="resource.type === 1">
           <el-col :span="12">
-            <el-form-item label="GET请求">
-              <el-radio-group v-model="resource.supportGet">
-                <el-radio :label="true">开启</el-radio>
-                <el-radio :label="false">关闭</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="POST请求">
-              <el-radio-group v-model="resource.supportPost">
-                <el-radio :label="true">开启</el-radio>
-                <el-radio :label="false">关闭</el-radio>
-              </el-radio-group>
+            <el-form-item label="路由" prop="path">
+              <el-input v-model="resource.path" placeholder="资源路由" />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row v-if="resource.type === 1">
-          <el-col :span="12">
-            <el-form-item label="PUT请求">
-              <el-radio-group v-model="resource.supportPut">
-                <el-radio :label="true">开启</el-radio>
-                <el-radio :label="false">关闭</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="DELETE请求">
-              <el-radio-group v-model="resource.supportDelete">
-                <el-radio :label="true">开启</el-radio>
-                <el-radio :label="false">关闭</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row v-if="resource.type === 1">
-          <el-col :span="12">
-            <el-form-item label="PATCH请求">
-              <el-radio-group v-model="resource.supportPatch">
-                <el-radio :label="true">开启</el-radio>
-                <el-radio :label="false">关闭</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
+<!--        <el-row v-if="resource.type === 1">-->
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="GET请求">-->
+<!--              <el-radio-group v-model="resource.supportGet">-->
+<!--                <el-radio :label="true">开启</el-radio>-->
+<!--                <el-radio :label="false">关闭</el-radio>-->
+<!--              </el-radio-group>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="POST请求">-->
+<!--              <el-radio-group v-model="resource.supportPost">-->
+<!--                <el-radio :label="true">开启</el-radio>-->
+<!--                <el-radio :label="false">关闭</el-radio>-->
+<!--              </el-radio-group>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--        </el-row>-->
+<!--        <el-row v-if="resource.type === 1">-->
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="PUT请求">-->
+<!--              <el-radio-group v-model="resource.supportPut">-->
+<!--                <el-radio :label="true">开启</el-radio>-->
+<!--                <el-radio :label="false">关闭</el-radio>-->
+<!--              </el-radio-group>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="DELETE请求">-->
+<!--              <el-radio-group v-model="resource.supportDelete">-->
+<!--                <el-radio :label="true">开启</el-radio>-->
+<!--                <el-radio :label="false">关闭</el-radio>-->
+<!--              </el-radio-group>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--        </el-row>-->
+<!--        <el-row v-if="resource.type === 1">-->
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="PATCH请求">-->
+<!--              <el-radio-group v-model="resource.supportPatch">-->
+<!--                <el-radio :label="true">开启</el-radio>-->
+<!--                <el-radio :label="false">关闭</el-radio>-->
+<!--              </el-radio-group>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--        </el-row>-->
         <el-form-item label="描述">
           <el-input v-model="resource.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="资源描述" />
         </el-form-item>
@@ -152,16 +153,23 @@ const defaultResource = {
   path: '',
   type: 0,
   priority: 1,
-  supportGet: true,
-  supportPost: true,
-  supportPut: true,
-  supportDelete: true,
-  supportPatch: true,
+  // supportGet: true,
+  // supportPost: true,
+  // supportPut: true,
+  // supportDelete: true,
+  // supportPatch: true,
   description: ''
 }
 
 export default {
   data() {
+    const validatePath = async(rule, value, callback) => {
+      if (this.resource.type === 1 && !value) {
+        callback(new Error('路由必须填写'))
+      } else {
+        callback()
+      }
+    }
     return {
       listLoading: true,
       loading: false,
@@ -178,6 +186,9 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入资源名称', trigger: 'blur' }
+        ],
+        path: [
+          { trigger: 'blur', validator: validatePath }
         ]
       },
       resourceTypeOptions
