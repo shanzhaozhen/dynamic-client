@@ -53,7 +53,9 @@ module.exports = {
       'after': true
     }],
     'handle-callback-err': [2, '^(err|error)$'],
-    'indent': 'off',
+    'indent': [2, 2, {
+      'SwitchCase': 1
+    }],
     'jsx-quotes': [2, 'prefer-single'],
     'key-spacing': [2, {
       'beforeColon': false,
@@ -180,7 +182,7 @@ module.exports = {
     'spaced-comment': [2, 'always', {
       'markers': ['global', 'globals', 'eslint', 'eslint-disable', '*package', '!', ',']
     }],
-    'template-curly-spacing': 'off',
+    'template-curly-spacing': [2, 'never'],
     'use-isnan': 2,
     'valid-typeof': 2,
     'wrap-iife': [2, 'any'],
